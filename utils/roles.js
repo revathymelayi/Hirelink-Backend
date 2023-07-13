@@ -1,0 +1,11 @@
+const USER_ROLE = "USER";
+const EMPLOYER_ROLE = "EMPLOYER";
+const ADMIN_ROLE = "ADMIN";
+const PENDING_EMPLOYER="PENDING_EMPLOYER"
+
+module.exports = {
+    USER_ROLE,
+    EMPLOYER_ROLE,
+    ADMIN_ROLE,
+    PENDING_EMPLOYER
+}
