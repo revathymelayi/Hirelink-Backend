@@ -3,6 +3,7 @@ const adminRoute = express();
 const adminController = require("../../controllers/admin/adminController");
 const categoryController = require("../../controllers/admin/categoryController");
 const jobtypeController = require("../../controllers/admin/jobtypeController");
+const jobsController = require("../../controllers/admin/jobsController")
 const isAdmin = require("../../middlewares/isAdmin");
 adminRoute.get("/users", isAdmin, adminController.users);
 adminRoute.get("/employers", isAdmin, adminController.employers);
@@ -20,6 +21,8 @@ adminRoute.get("/job-types", isAdmin, jobtypeController.jobtypes)
 adminRoute.post("/add-jobtype", isAdmin, jobtypeController.addJobtype)
 adminRoute.post("/update-jobtype", isAdmin, jobtypeController.updateJobtype)
 adminRoute.put("/jobtype/change-status", isAdmin, jobtypeController.changeStatus)
+
+adminRoute.get("/jobs", isAdmin, jobsController.jobs)
 
 
 module.exports = adminRoute;

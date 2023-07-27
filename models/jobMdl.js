@@ -8,11 +8,7 @@ const jobSchema = new Schema(
       type: ObjectId,
       required: true,
     },
-    companyName:{
-      type:String,
-      required:true,
-
-    },
+   
     jobTitle: {
       type: String,
       required: true,
@@ -51,10 +47,7 @@ const jobSchema = new Schema(
       required: true,
       default: true,
     },
-    logoImage: {
-      type: String,
-      required: true,
-    },
+  
   },
   { timestamps: true }
 );

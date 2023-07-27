@@ -25,6 +25,7 @@ app.use(cors({origin:true,credentials:true}))
 const authRoute = require("./routes/authRoutes")
 const adminRoute = require("./routes/admin/adminRoutes");
 const employerRoute=require("./routes/employer/employerRoute")
+const userRoute=require("./routes/user/userRoutes")
 
 
 
@@ -32,6 +33,7 @@ const employerRoute=require("./routes/employer/employerRoute")
 app.use("/api/auth",authRoute)
 app.use("/api/admin",adminRoute)
 app.use("/api/employer",employerRoute)
+app.use("/api/user",userRoute)
 
 
 

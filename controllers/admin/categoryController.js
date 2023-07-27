@@ -3,7 +3,7 @@ const Category = require("../../models/categoryMdl");
 //Categories//
 const categories = async (req, res) => {
   try {
-    const categories = await Category.find({});
+    const categories = await Category.find({}).sort({createdAt:-1});
     if (categories) {
       return res.status(200).json({ categories });
     }

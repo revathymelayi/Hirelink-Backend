@@ -1,7 +1,7 @@
 const User = require("../../models/userMdl");
-const Type = require("../../models/jobtypeMdl");
 
-const bcrypt = require("bcrypt");
+
+
 require("dotenv").config();
 const moment = require("moment");
 const { USER_ROLE, EMPLOYER_ROLE, ADMIN_ROLE, PENDING_EMPLOYER } = require("../../utils/roles")
@@ -11,7 +11,7 @@ const users = async (req, res) => {
       if (req.roles !== ADMIN_ROLE) {
         return res.status(400).json({ message: "Invalid user" });
       }
-      const users = await User.find({ role: USER_ROLE });
+      const users = await User.find({ role: USER_ROLE }).sort({createdAt:-1});
       if (users) {
         return res.status(200).json({ users });
       }
@@ -25,7 +25,7 @@ const users = async (req, res) => {
       if (req.roles !== ADMIN_ROLE) {
         return res.status(400).json({ message: "Invalid user" });
       }
-      const employers = await User.find({ role: { $in: [EMPLOYER_ROLE, PENDING_EMPLOYER] } });
+      const employers = await User.find({ role: { $in: [EMPLOYER_ROLE, PENDING_EMPLOYER] } }).sort({createdAt:-1});
       if (employers) {
         return res.status(200).json({ employers });
       }
@@ -50,19 +50,19 @@ const users = async (req, res) => {
       return res.status(500).json({ message: error.message });
     }
   };
-  const types = async (req, res) => {
-    try {
-      const types = await Level.find({status:true})
-      return res.status(200).json({ levels:levels });
-    } catch (error) {
-      return res.status(500).json({ message: error.message });
-    }
-  }
+  // const types = async (req, res) => {
+  //   try {
+  //     const types = await Level.find({status:true})
+  //     return res.status(200).json({ levels:levels });
+  //   } catch (error) {
+  //     return res.status(500).json({ message: error.message });
+  //   }
+  // }
   
 
   module.exports = {
     users,
     employers,
     changeStatus,
-    types
+    
   }

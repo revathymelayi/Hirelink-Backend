@@ -3,7 +3,7 @@ const Jobtype = require("../../models/jobtypeMdl");
 //jobtypes//
 const jobtypes = async (req, res) => {
   try {
-    const jobtypes = await Jobtype.find({});
+    const jobtypes = await Jobtype.find({}).sort({createdAt:-1});
     if (jobtypes) {
       return res.status(200).json({ jobtypes });
     }

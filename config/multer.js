@@ -39,10 +39,54 @@ const userImageUpload = multer({
   limits: { fileSize: 5000000 },
 });
 
+//resume upload
+const resumeStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // For the resume uploads
+    if (file.fieldname === "resume") {
+      cb(null, path.join(__dirname, "../public/resumes"));
+    } else {
+      cb(new Error("Invalid fieldname for file upload"));
+    }
+  },
+  filename: function (req, file, cb) {
+    const name = Date.now() + "-" + file.originalname;
+    cb(null, name);
+  },
+});
+
+const resumeFileFilter = (req, file, cb) => {
+  const file_extension = file.originalname.slice(
+    ((file.originalname.lastIndexOf(".") - 1) >>> 0) + 2
+  );
+  const array_of_allowed_pdf_files = ["pdf"];
+  const array_of_allowed_pdf_types = ["application/pdf"];
+
+  if (
+    file.fieldname === "resume" &&
+    array_of_allowed_pdf_files.includes(file_extension) &&
+    array_of_allowed_pdf_types.includes(file.mimetype)
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+    req.error = "Type validation failed";
+  }
+};
+
+const userResumeUpload = multer({
+  storage: resumeStorage,
+  resumeFileFilter,
+  limits: { fileSize: 5000000 }, // Limit to 5MB file size (adjust as needed)
+});
+
+
+
 
 
 
 module.exports = {
   userImageUpload,
+  userResumeUpload
  
 };
