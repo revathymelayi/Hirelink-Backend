@@ -16,7 +16,9 @@ authRoute.post("/user/profile-complete",userUpload,authController.profileComplet
 authRoute.post("/user/payment-update/:userId",authController.paymentUpdate);
 authRoute.post("/forgot-password", authController.forgotPassword);
 authRoute.post("/logout", authController.logout);
-authRoute.post('/update/password', authController.updatePassword)
+authRoute.post('/update/password', authController.updatePassword);
+authRoute.get('/employers',authController.employers);
+authRoute.get('/jobs',authController.jobs)
 
 
 

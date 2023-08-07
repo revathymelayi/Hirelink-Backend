@@ -1,5 +1,6 @@
 const User = require("../models/userMdl");
 const Transaction = require("../models/transactionMdl");
+const Job= require("../models/jobMdl");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
@@ -10,9 +11,17 @@ const { EMPLOYER_ROLE } = require("../utils/roles");
 //Registration
 
 const register = async (req, res) => {
-  const { firstName, lastName, email, password, confirmPassword, role } = req.body;
+  const { firstName, lastName, email, password, confirmPassword, role } =
+    req.body;
   try {
-    if (!firstName || !lastName || !email || !password || !confirmPassword || !role) {
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !password ||
+      !confirmPassword ||
+      !role
+    ) {
       return res.status(400).json({ message: "All fields are required!!" });
     }
 
@@ -22,7 +31,9 @@ const register = async (req, res) => {
 
     const isUser = await User.findOne({ email: email });
     if (isUser) {
-      return res.status(400).json({ message: "Already registered, please Login!" });
+      return res
+        .status(400)
+        .json({ message: "Already registered, please Login!" });
     } else {
       const otp = Math.floor(Math.random() * 9000 + 1000);
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -41,19 +52,21 @@ const register = async (req, res) => {
 
         const subject = "Email Verification";
 
-        sendEmailVerification(resUser.firstName, resUser.lastName, email, message);
-        return res.status(200).json({ message: "Registered Successfully", user: resUser });
+        sendEmailVerification(
+          resUser.firstName,
+          resUser.lastName,
+          email,
+          message
+        );
+        return res
+          .status(200)
+          .json({ message: "Registered Successfully", user: resUser });
       }
     }
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
 };
-
-
-
-
-
 
 const profileComplete = async (req, res) => {
   try {
@@ -71,7 +84,7 @@ const profileComplete = async (req, res) => {
       state,
     } = req.body;
     const { logo, coverPhoto } = req.files;
-    
+
     if (
       logo &&
       coverPhoto &&
@@ -89,13 +102,13 @@ const profileComplete = async (req, res) => {
     ) {
       const logoImage = logo[0].filename;
       const coverImage = coverPhoto[0].filename;
-      
+
       if (!userId) {
         return res.status(400).json({ message: "Invalid user" });
       }
-      
+
       const user = await User.findOne({ _id: userId });
-      
+
       // Update employerdetails field separately
       user.employerdetails = {
         companyName,
@@ -112,17 +125,17 @@ const profileComplete = async (req, res) => {
         coverPhoto: coverImage,
         isActive: true,
       };
-      
+
       const updateProfileUpdate = await user.save();
-      console.log(updateProfileUpdate)
+      console.log(updateProfileUpdate);
       if (!updateProfileUpdate) {
         return res.status(400).json({ message: "User not found !!" });
       }
-      
+
       // Access Token
       const { accessToken, refreshToken } = generateTokens(user);
       setRefreshTokenCookie(res, refreshToken);
-      
+
       // Send accessToken containing username and roles
       return res.status(200).json({
         message: "User profile updated successfully !!",
@@ -142,16 +155,14 @@ const paymentUpdate = async (req, res) => {
   try {
     const { userId } = req.params;
     const { transactionId } = req.body;
-    console.log(req.params)
-    console.log(req.body)
+    console.log(req.params);
+    console.log(req.body);
     const user = await User.findById(userId);
     if (!userId) return res.status(400).json({ message: "User not found !!" });
     const userRoleUpdate = await User.findByIdAndUpdate(userId, {
       role: EMPLOYER_ROLE,
-      
     });
-    
-    
+
     const newTransaction = await Transaction({
       userId,
       role: EMPLOYER_ROLE,
@@ -320,20 +331,23 @@ const sendEmailVerification = async (
 
 const updatePassword = async (req, res) => {
   try {
-    const { newPassword, confirmPassword, email } = req.body
+    const { newPassword, confirmPassword, email } = req.body;
     if (!newPassword || !confirmPassword || !email)
       return res.status(400).json({ message: "All fields are required" });
     if (newPassword === confirmPassword) {
-      const hashPassword = await bcrypt.hash(newPassword, 10)
-      const updatePassword = await User.updateOne({ email: email }, { $set: { password: hashPassword } })
-      res.status(200).json({ message: 'Password updated successfully !!!' })
+      const hashPassword = await bcrypt.hash(newPassword, 10);
+      const updatePassword = await User.updateOne(
+        { email: email },
+        { $set: { password: hashPassword } }
+      );
+      res.status(200).json({ message: "Password updated successfully !!!" });
     } else {
-      res.status(400).json({ error: 'Password mismatch !!!' })
+      res.status(400).json({ error: "Password mismatch !!!" });
     }
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
-}
+};
 const validateOtp = async (req, res) => {
   try {
     const { otp } = req.body;
@@ -360,6 +374,80 @@ const setRefreshTokenCookie = (res, refreshToken) => {
   });
 };
 
+//employers
+const employers = async (req, res) => {
+  try {
+    let employersList = "";
+    employersList = await User.aggregate([
+      { $match: { isActive: true, role: EMPLOYER_ROLE } },
+      {
+        $lookup: {
+          from: "jobs",
+          localField: "_id",
+          foreignField: "employerId",
+          as: "jobs",
+        },
+      },
+      { $sort: { createdAt: -1 } },
+    ]);
+    return res.status(200).json({ employers: employersList });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+const jobs = async (req, res) => {
+  try {
+    let jobsList = "";
+    jobsList = await Job.aggregate([
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      {
+        $lookup: {
+          from: "jobtypes",
+          localField: "jobtype",
+          foreignField: "_id",
+          as: "jobtype",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "employerId",
+          foreignField: "_id",
+          as: "employer",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          employerId: 1,
+          jobTitle: 1,
+          location:1,
+          salary:1,
+          experience:1,
+          description:1,
+          skills:1,
+          // Other fields...
+          category: { $arrayElemAt: ["$category.name", 0] }, // Assuming the category.name holds the category name.
+          jobtype: { $arrayElemAt: ["$jobtype.name", 0] }, // Assuming the jobtype.name holds the jobtype name.
+          employer: { $arrayElemAt: ["$employer.employerdetails", 0] }, // Assuming the employer.name holds the employer name.
+        },
+      },
+      { $sort: { createdAt: -1 } },
+    ]);
+    return res.status(200).json({ jobs: jobsList});
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+
 //logout
 const logout = (req, res) => {
   const cookies = req.cookies;
@@ -378,4 +466,6 @@ module.exports = {
   updatePassword,
   logout,
   validateOtp,
+  employers,
+  jobs
 };
