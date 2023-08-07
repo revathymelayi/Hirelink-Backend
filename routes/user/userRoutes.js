@@ -7,6 +7,7 @@ const isUser = require("../../middlewares/isUser")
 userRoute.get('/employers', userController.employers);
 userRoute.post('/employer/search', userController.searchEmployer);
 userRoute.post('/apply',userController.jobApply);
+userRoute.post('/check-application',userController.checkJobApplication)
 userRoute.post('/profile-complete',resumeUpload.single('resume'),userController.profileComplete);
 userRoute.post('/job/search', userController.searchJob);
 

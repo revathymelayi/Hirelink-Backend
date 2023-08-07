@@ -1,4 +1,5 @@
 const Job =require("../../models/jobMdl")
+const JobApply=require("../../models/jobApplyMdl")
 const mongoose= require('mongoose');
 
 const ObjectId = mongoose.Types.ObjectId
@@ -31,6 +32,19 @@ const jobs=async(req,res)=>{
                     as: "employer",
                 },
             },
+            {
+                $lookup: {
+                  from: "jobapplies",
+                  localField: "_id",
+                  foreignField: "jobId",
+                  as: "applicants",
+                },
+              },
+              {
+                $addFields: {
+                  numberOfApplicants: { $size: "$applicants" }, // Count the number of applicants for each job
+                },
+              },
            
            
         ]);
@@ -43,7 +57,27 @@ const jobs=async(req,res)=>{
     }
 }
 
+const changeStatus = async (req, res) => {
+    try {
+        const { jobId } = req.query
+        const job = await Job.findById(jobId)
+        const newStatus = !job.status
+        const updateStatus = await Job.findByIdAndUpdate(jobId,
+            { status: newStatus }
+        );
+        if (!updateStatus) {
+            return res.status(400).json({ message: "Something went wrong" });
+        }
+        return res.status(200).json({ message: "Status changed successfully !!" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+
+
 
 module.exports={
-    jobs
+    jobs,
+    changeStatus
 }

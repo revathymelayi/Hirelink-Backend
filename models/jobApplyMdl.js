@@ -19,6 +19,10 @@ const jobapplySchema = new mongoose.Schema(
       type: Boolean,
       required: true,
     },
+    currentStatus:{
+      type:Boolean,
+      required:true,
+    }
   },
 
   { timestamps: true }

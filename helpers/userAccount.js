@@ -92,8 +92,8 @@ const updateEmployerDetails = async (req, res) => {
 
 const updateUserDetails = async(req,res)=>{
     try{
-        const { email, firstName, lastName,  address,  contactNumber, qualification,salary,experience } = req.body;
-        console.log("req.body:",req.body.salary)
+        const { email, firstName, lastName,  address,  contactNumber, qualification,salary,experience,company,jobRole,skills,about } = req.body;
+        console.log("req.file:", req.file);
         const { userId } = req.query;
         const userDetails = await User.findById(userId);
         if (!userDetails) {
@@ -101,8 +101,8 @@ const updateUserDetails = async(req,res)=>{
         }
         let resume = userDetails.userdetails.resume;
         console.log("gh:",resume)
-        if (req.file && req.file.resume) {
-            resume = req.file.resume[0].filename;
+        if (req.file && req.file.filename) {
+            resume = req.file.filename;
            
         }
          
@@ -115,7 +115,11 @@ const updateUserDetails = async(req,res)=>{
             "userdetails.contactNumber": contactNumber,
             "userdetails.salary": salary,
             "userdetails.experience": experience,
-            "userdetails.resume": resume,
+            "userdetails.about":about,
+            "userdetails.skills":skills,
+            "userdetails.company":company,
+            "userdetails.jobRole":jobRole,
+            "userdetails.resume": resume
         });
         console.log("updateResult:", updateResult);
 

@@ -71,6 +71,10 @@ const userSchema = new mongoose.Schema({
     salary:{type:String},
     experience:{type:String},
     address:{type:String},
+    about:{type:String},
+    skills:{type:String},
+    company:{type:String},
+    jobRole:{type:String},
     isActive:{type:Boolean}
   
 

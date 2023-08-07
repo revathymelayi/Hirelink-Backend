@@ -23,6 +23,9 @@ adminRoute.post("/update-jobtype", isAdmin, jobtypeController.updateJobtype)
 adminRoute.put("/jobtype/change-status", isAdmin, jobtypeController.changeStatus)
 
 adminRoute.get("/jobs", isAdmin, jobsController.jobs)
+adminRoute.put("/job/change-status", isAdmin, jobsController.changeStatus)
+adminRoute.get("/dashboard/details", isAdmin, adminController.dashboardDetails)
+adminRoute.get("/transaction",isAdmin,adminController.revenue)
 
 
 module.exports = adminRoute;

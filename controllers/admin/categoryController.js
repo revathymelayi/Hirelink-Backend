@@ -18,6 +18,9 @@ const addCategory = async (req, res) => {
     const { category } = req.body
     if (!category)
       return res.status(400).json({ message: "Category is required" });
+      const checkCategory = await Category.findOne({ name: { $regex: `${ category }.*`, $options: "i" } });
+      if (checkCategory)
+        return res.status(400).json({ message: "Category already exist!!!" });
     const newCategory = await Category.updateOne({ name: category }, { $set: { name: category, status: true } }, { upsert: true })
 
     if (!newCategory)

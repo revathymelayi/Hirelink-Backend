@@ -1,4 +1,7 @@
 const User = require("../../models/userMdl");
+const Job = require("../../models/jobMdl");
+const JobApply = require("../../models/jobApplyMdl");
+const Transaction=require("../../models/transactionMdl")
 
 
 
@@ -50,19 +53,100 @@ const users = async (req, res) => {
       return res.status(500).json({ message: error.message });
     }
   };
-  // const types = async (req, res) => {
-  //   try {
-  //     const types = await Level.find({status:true})
-  //     return res.status(200).json({ levels:levels });
-  //   } catch (error) {
-  //     return res.status(500).json({ message: error.message });
-  //   }
-  // }
-  
+ const dashboardDetails = async(req,res)=>{
+  try{
+    const totalUsers = await User.find({ role: USER_ROLE }).count()
+    const totalCompanies = await User.find({ role: EMPLOYER_ROLE }).count()
+    const totalJobPost=await Job.find({status:true}).count()
+    const totalApplicant = await JobApply.find({status:true}).count()
+    const pendingEmployers=await User.find({role:PENDING_EMPLOYER}).count()
+    const totalAmount = await Transaction.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" },
+        },
+      },
+
+    ])
+    const total = totalAmount.length > 0 ? totalAmount[0].totalAmount : 0;
+    console.log("23:",totalAmount)
+    return res.status(200).json({
+     
+      totalUsers,
+      totalCompanies,
+      totalJobPost,
+      totalApplicant,
+      total,
+      pendingEmployers
+      
+    });
+
+  }catch(error){
+
+  }
+ }
+
+
+const revenue = async (req, res) => {
+ 
+  const page = parseInt(req.query.page) || 1
+  const limit = parseInt(req.query.limit) || 10
+  try {
+    const revenueData = await Transaction.aggregate([
+      {
+        $lookup: {
+          from: "users", // Name of the User collection in the database
+          localField: "userId",
+          foreignField: "_id",
+          as: "employerDetails",
+        },
+      },
+      {
+        $unwind: {
+          path: "$employerDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          employerName: {
+            $concat: ["$employerDetails.firstName", " ", "$employerDetails.lastName"],
+          },
+          email: "$employerDetails.email",
+          companyName: "$employerDetails.employerdetails.companyName",
+          logo:"$employerDetails.employerdetails.logo",
+          transactionDate: "$createdAt",
+          websiteUrl:"$employerDetails.employerdetails.websiteUrl",
+          amount:1
+        },
+      },
+      {
+        $sort: { transactionDate: -1 } // -1 indicates descending order, 1 indicates ascending
+      },
+      { $skip: (page - 1) * limit },
+      { $limit: limit }
+    
+    ]);
+    const totalEmployersCount = await User.find({ role: EMPLOYER_ROLE }).count()
+    console.log("revenueData:", revenueData);
+    console.log(totalEmployersCount);
+
+    return res.status(200).json({revenueData: revenueData,totalEmployersCount:totalEmployersCount});
+  } catch (error) {
+    return res.status(500).json({ message: "An error occurred while calculating revenue." });
+  }
+};
+
+
+
 
   module.exports = {
     users,
     employers,
     changeStatus,
+    dashboardDetails,
+    revenue
     
   }

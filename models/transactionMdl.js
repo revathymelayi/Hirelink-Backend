@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
-
+const Schema = mongoose.Schema,
+ObjectId = Schema.ObjectId;
 const transactionSchema = new mongoose.Schema(
   {
     userId: {
-      type: String,
+      type: ObjectId,
       required: false,
     },
     role: {

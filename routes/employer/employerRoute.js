@@ -18,11 +18,15 @@ employerRoute.post('/add-job', isEmployer, jobController.addJob);
 employerRoute.get('/jobs', isEmployer, jobController.jobs);
 employerRoute.put('/delete-job', isEmployer, jobController.deleteJob);
 employerRoute.put('/edit-job', isEmployer, jobController.editJob);
+employerRoute.get('/candidates',isEmployer,jobController.applicants);
+employerRoute.post('/applicants/search', jobController.searchApplicants);
+employerRoute.put('/candidates/change-status/:jobApplyId',jobController.changeStatus)
 
 
 employerRoute.post('/change/password', isEmployer, employerController.changePassword);
 employerRoute.post('/edit-employer-details', isEmployer, userUpload, employerController.editEmployer);
-employerRoute.get('/candidates',isEmployer,employerController.candidates)
+employerRoute.get('/dashboard/details',isEmployer,employerController.dashboardDetails);
+
 
 
 

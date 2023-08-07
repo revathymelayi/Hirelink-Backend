@@ -18,6 +18,9 @@ const addJobtype = async (req, res) => {
     const { jobtype } = req.body
     if (!jobtype)
       return res.status(400).json({ message: "jobtype is required" });
+      const checkJobtype = await Jobtype.findOne({ name: { $regex: `${ jobtype}.*`, $options: "i" } });
+      if (checkJobtype)
+        return res.status(400).json({ message: "Jobtype already exist!!!" });
     const newType = await Jobtype.updateOne({ name: jobtype }, { $set: { name: jobtype, status: true } }, { upsert: true })
 
     if (!newType)
