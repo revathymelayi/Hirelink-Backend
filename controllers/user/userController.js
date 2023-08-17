@@ -245,12 +245,13 @@ const jobs=async(req,res)=>{
           description:1,
           skills:1,
           // Other fields...
-          category: { $arrayElemAt: ["$category.name", 0] }, // Assuming the category.name holds the category name.
-          jobtype: { $arrayElemAt: ["$jobtype.name", 0] }, // Assuming the jobtype.name holds the jobtype name.
-          employer: { $arrayElemAt: ["$employer.employerdetails", 0] }, // Assuming the employer.name holds the employer name.
+          category: { $arrayElemAt: ["$category.name", 0] }, 
+          jobtype: { $arrayElemAt: ["$jobtype.name", 0] }, 
+          employer: { $arrayElemAt: ["$employer.employerdetails", 0] },
+          sortOrder: "$createdAt",
         },
       },
-      { $sort: { createdAt: -1 } },
+      { $sort: { sortOrder: -1 } },
       { $skip: (page - 1) * limit },
       { $limit: limit }
      
