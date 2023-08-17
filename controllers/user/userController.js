@@ -342,7 +342,7 @@ const appliedJobs = async (req, res) => {
   try {
     const { userId } = req.query;
 
-    const appliedJobs = await JobApply.find({ userId }).lean(); // Convert to plain JavaScript objects
+    const appliedJobs = await JobApply.find({ userId }).lean(); 
 
     // Extract all unique employerIds and jobIds from the appliedJobs array
     const employerIds = [...new Set(appliedJobs.map(job => job.employerId))];
@@ -351,22 +351,22 @@ const appliedJobs = async (req, res) => {
     // Fetch all employers with the matching employerIds
     const employers = await User.find({ _id: { $in: employerIds }, role: 'EMPLOYER' }).lean();
 
-    // Create a map to access employer details by employerId
+  
     const employerMap = employers.reduce((map, employer) => {
       map[employer._id.toString()] = employer.employerdetails;
       return map;
     }, {});
 
-    // Fetch all jobs with the matching jobIds
+   
     const jobs = await Job.find({ _id: { $in: jobIds } }).lean();
 
-    // Create a map to access job details by jobId
+    
     const jobMap = jobs.reduce((map, job) => {
       map[job._id.toString()] = job;
       return map;
     }, {});
 
-    // Combine the appliedJobs array with employer and job details
+   
     const appliedJobsWithDetails = appliedJobs.map(jobApply => ({
       ...jobApply,
       employer: employerMap[jobApply.employerId.toString()],
