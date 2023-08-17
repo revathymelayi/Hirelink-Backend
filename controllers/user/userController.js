@@ -209,6 +209,7 @@ const jobs=async(req,res)=>{
     const limit = parseInt(req.query.limit) || 10
     let jobsList=""
     jobsList=await Job.aggregate([
+     
       {
           $lookup:{
               from:"categories",
@@ -245,17 +246,19 @@ const jobs=async(req,res)=>{
           description:1,
           skills:1,
           // Other fields...
-          category: { $arrayElemAt: ["$category.name", 0] }, 
-          jobtype: { $arrayElemAt: ["$jobtype.name", 0] }, 
-          employer: { $arrayElemAt: ["$employer.employerdetails", 0] },
+          category: { $arrayElemAt: ["$category.name", 0] }, // Assuming the category.name holds the category name.
+          jobtype: { $arrayElemAt: ["$jobtype.name", 0] }, // Assuming the jobtype.name holds the jobtype name.
+          employer: { $arrayElemAt: ["$employer.employerdetails", 0] }, // Assuming the employer.name holds the employer name.
           sortOrder: "$createdAt",
         },
       },
+     
       { $sort: { sortOrder: -1 } },
       { $skip: (page - 1) * limit },
       { $limit: limit }
      
   ]);
+ 
   const totalJobsCount = await Job.find({ }).count()
   console.log(jobsList);
   return res.status(200).json({ jobs: jobsList,totalJobsCount: totalJobsCount });
