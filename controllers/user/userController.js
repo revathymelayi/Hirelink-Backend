@@ -373,7 +373,7 @@ const appliedJobs = async (req, res) => {
       job: jobMap[jobApply.jobId.toString()],
     }));
 
-    // console.log("Your jobs:", appliedJobsWithDetails);
+    appliedJobsWithDetails.sort((a, b) => b.createdAt - a.createdAt);
     return res.status(200).json({ appliedJobs: appliedJobsWithDetails });
   } catch (error) {
     return res.status(400).json({ message: error.message });
