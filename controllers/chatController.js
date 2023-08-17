@@ -192,6 +192,12 @@ const fetchChats = asyncHandler(async function(req, res) {
                 $sort: { updatedAt: -1 },
             },
         ]);
+        uniqueUserList.sort((a, b) => {
+            const nameA = a.firstName + a.lastName;
+            const nameB = b.firstName + b.lastName;
+            return nameA.localeCompare(nameB);
+          });
+
 
         const combinedList = uniqueUserList.map(user => ({
             ...user,
